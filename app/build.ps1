@@ -274,6 +274,51 @@ $exeItem = Get-Item $exePath
 Ok "产物: $($exeItem.FullName)"
 Ok "大小: $([math]::Round($exeItem.Length / 1MB, 1)) MB"
 
+# ---------------------------------------------------------------- 5.5 精简产物
+# 默认产物 358MB，其中两大块对本程序完全没用：
+#   1) locales/ 55 个语言包共 45MB —— 只留 zh-CN / en-US
+#   2) koffi 的全平台二进制 25MB —— 只留 win32_x64（本项目只跑 Windows）
+# 砍掉后 358MB → 290MB，zip 从 139.7MB → 121.8MB。
+# 对发布很关键：GitHub 上传在国内只有 20~30KB/s，少 18MB 就少传 10 分钟。
+if (-not $Portable) {
+    $unpackedDir = Join-Path $distDir 'win-unpacked'
+    if (Test-Path $unpackedDir) {
+        Step '精简产物（语言包 / 跨平台二进制）'
+
+        $beforeBytes = (Get-ChildItem $unpackedDir -Recurse -File -ErrorAction SilentlyContinue |
+            Measure-Object Length -Sum).Sum
+
+        # 语言包
+        $localesDir = Join-Path $unpackedDir 'locales'
+        if (Test-Path $localesDir) {
+            $keepLocales = @('zh-CN.pak', 'en-US.pak')
+            Get-ChildItem $localesDir -Filter '*.pak' -ErrorAction SilentlyContinue |
+                Where-Object { $_.Name -notin $keepLocales } |
+                ForEach-Object { Remove-Item $_.FullName -Force -ErrorAction SilentlyContinue }
+            $leftLocales = (Get-ChildItem $localesDir -File -ErrorAction SilentlyContinue | Measure-Object).Count
+            Ok "语言包保留 $leftLocales 个（zh-CN / en-US）"
+        }
+
+        # koffi 跨平台二进制
+        $koffiDir = Join-Path $unpackedDir 'resources\app.asar.unpacked\node_modules\koffi\build\koffi'
+        if (Test-Path $koffiDir) {
+            Get-ChildItem $koffiDir -Directory -ErrorAction SilentlyContinue |
+                Where-Object { $_.Name -ne 'win32_x64' } |
+                ForEach-Object { Remove-Item $_.FullName -Recurse -Force -ErrorAction SilentlyContinue }
+            $leftKoffi = (Get-ChildItem $koffiDir -Directory -ErrorAction SilentlyContinue |
+                Select-Object -ExpandProperty Name) -join ', '
+            Ok "koffi 保留平台: $leftKoffi"
+        }
+
+        $afterBytes = (Get-ChildItem $unpackedDir -Recurse -File -ErrorAction SilentlyContinue |
+            Measure-Object Length -Sum).Sum
+        if ($beforeBytes -and $afterBytes) {
+            Ok ("目录体积: {0:N0} MB → {1:N0} MB（省 {2:N0} MB）" -f `
+                ($beforeBytes / 1MB), ($afterBytes / 1MB), (($beforeBytes - $afterBytes) / 1MB))
+        }
+    }
+}
+
 # ---------------------------------------------------------------- 6. 验证产物
 
 if ($SkipVerify) {

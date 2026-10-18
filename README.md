@@ -11,7 +11,7 @@ Windows 桌面程序：自动检测运行中的阴阳师客户端、支持多实
 （exe 有 204 MB，超过 GitHub 单文件 100 MB 限制，所以只能作为 Release 附件发布）。
 
 1. 打开右侧 **Releases** → 最新版本
-2. 下载 `OnmyojiAssistant-v0.1.0-win-x64.zip`（约 140 MB）
+2. 下载 `OnmyojiAssistant-v0.1.0-win-x64.zip`（约 122 MB）
 3. 解压到任意目录（**路径别含特殊字符**）
 4. 双击 `OnmyojiAssistant.exe` → 弹 UAC 点「**是**」（必须提权，原因见「必须以管理员身份运行」）
 

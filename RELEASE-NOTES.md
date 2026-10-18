@@ -4,7 +4,7 @@
 
 ### 下载与使用
 
-1. 下载下面的 `OnmyojiAssistant-v0.1.0-win-x64.zip`（约 140 MB）
+1. 下载下面的 `OnmyojiAssistant-v0.1.0-win-x64.zip`（约 122 MB）
 2. 解压到任意目录，**路径别含特殊字符**
 3. 双击 `OnmyojiAssistant.exe` → 弹 UAC 时点「**是**」
 
