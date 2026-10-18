@@ -1,0 +1,30 @@
+# 统一换行：源码用 LF 入库，避免 Windows/Linux 协作时整文件 diff
+* text=auto eol=lf
+
+# 明确哪些是二进制（不能做任何换行转换，否则素材会损坏）
+*.png  binary
+*.jpg  binary
+*.jpeg binary
+*.ico  binary
+*.gif  binary
+*.7z   binary
+*.zip  binary
+*.exe  binary
+*.dll  binary
+*.node binary
+*.asar binary
+
+# PowerShell 脚本按 CRLF（Windows 上直接可用）；build.ps1 必须保留 UTF-8 BOM
+*.ps1  text eol=crlf
+*.bat  text eol=crlf
+*.cmd  text eol=crlf
+
+# 其余文本
+*.js   text eol=lf
+*.json text eol=lf
+*.md   text eol=lf
+*.yml  text eol=lf
+*.yaml text eol=lf
+
+# 让 GitHub 把 exe 当成二进制、不显示 diff
+*.exe  -diff

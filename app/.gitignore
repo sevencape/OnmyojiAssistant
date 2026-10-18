@@ -1,0 +1,15 @@
+# 依赖与构建产物
+node_modules/
+../dist/
+dist/
+
+# 调试输出
+debug/
+*.log
+
+# 编辑器
+.vscode/
+.idea/
+
+# 注意：lib/ 和 renderer/ 必须提交，它们是源码
+# koffi 自带全平台预编译二进制（build/koffi/*），不要删

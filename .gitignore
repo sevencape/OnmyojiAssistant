@@ -1,0 +1,53 @@
+# ---------------------------------------------------------------- 依赖 / 构建产物
+# node_modules 有 438MB，绝对不进仓库；别人 clone 后 npm install 即可
+node_modules/
+app/node_modules/
+
+# 打包产物：exe 有 204MB，超过 GitHub 单文件 100MB 硬限制
+# 发布版请走 GitHub Releases（见 README「下载」一节）
+dist/
+app/dist/
+_staging/
+*.asar
+
+# ---------------------------------------------------------------- 调试 / 标定产物
+debug/
+raw/
+logs/
+*.log
+probe_*.png
+panel-*.png
+cmp-*.png
+
+# 标定工具产生的临时素材目录
+app/calibrated/
+app/calibrated2/
+app/calibrated3/
+
+# ---------------------------------------------------------------- 环境 / 系统
+.env
+.env.local
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ---------------------------------------------------------------- 编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ---------------------------------------------------------------- Python（src/ 下的参考实现）
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ---------------------------------------------------------------- 注意
+# config/ 必须提交！
+#   config/dungeons/*.json  = 副本流程（程序读它填充下拉栏）
+#   config/assets/*.png     = 素材（手工裁的，丢了要重做）
+#   config/screen.json      = 素材基准尺寸 / 自动缩放
+# 这些是「开箱即用」的核心，删了程序就没法跑。

@@ -1,0 +1,169 @@
+# ============================================================
+#  阴阳师 PC 客户端 · 图像识别脚本配置
+#  改这个文件就能调参，不用动代码。
+# ============================================================
+
+window:
+  # 游戏窗口标题的关键字（不区分大小写）。
+  # 用 /list-windows 参数可以列出当前所有可见窗口标题，按实际结果修改。
+  title_keywords: ["阴阳师", "Onmyoji"]
+  # 每次截图前把游戏窗口置前。部分游戏在后台时画面会停止渲染，此时必须为 true。
+  activate_before_capture: true
+  # 窗口客户区目标宽高。非 0 时若实际尺寸不符，只在日志里警告（不强行改窗口大小）。
+  expected_size: [1280, 720]
+
+vision:
+  # 模板匹配阈值，0~1，越大越严格。误点就调高，识别不到就调低。
+  default_threshold: 0.86
+  # 转灰度匹配：更快，且对色调变化更鲁棒。彩色元素（如血条颜色）建议单条覆盖为 false。
+  use_grayscale: true
+  # 连续 N 帧都命中才认为状态成立，用来过滤战斗特效造成的偶发误判。
+  stable_frames: 2
+  # 匹配时在窗口内缩进的边距（像素），0 表示全窗口搜索。
+  search_margin: 0
+
+timing:
+  loop_interval: 0.10        # 主循环间隔（秒）。别低于 0.05，太频繁吃 CPU 且更容易被风控关注
+  click_delay: [0.18, 0.45]  # 每次点击后的随机延迟区间（秒），随机化是为了降低机械感
+  action_gap: [0.12, 0.30]   # 同一状态内多个动作之间的随机延迟
+  state_cooldown: 0.80       # 同一状态触发后的冷却时间，防止对同一个按钮连点
+  state_timeout: 25.0        # 状态多久没再出现就重置它当前的重复计数
+
+limits:
+  max_actions: 0             # 累计动作次数上限，0 = 不限
+  max_minutes: 0             # 运行时长上限（分钟），0 = 不限
+  error_streak_limit: 12     # 连续无效截图/异常次数上限，超过就急停
+
+debug:
+  save_frames_on_error: true
+  save_frames_on_match: false
+  debug_dir: "debug"
+  # dry_run 为 true 时只识别、不点击，用来验证素材和阈值。也可以用命令行 --dry-run 覆盖。
+  dry_run: false
+
+# ============================================================
+#  状态机
+#  按 order 从小到大依次判断；命中第一个就执行它的 actions，然后回到循环开头。
+#  when.any: 列出的模板任意一个命中 → 该状态成立
+#  when.all: 列出的模板必须全部命中 → 该状态成立（用于"结算框 + 确定按钮"这类组合判断）
+#  每个模板项可以是字符串（只有文件名），也可以是字典（带自己的阈值/区域覆盖）
+# ============================================================
+states:
+
+  # ---------- 最高优先级：安全兜底 / 异常处理 ----------
+  - name: "体力不足_告警"
+    order: 0
+    when:
+      any:
+        - { name: "text_no_stamina.png", threshold: 0.90 }
+        - { name: "title_buy_stamina.png", threshold: 0.90 }
+    actions:
+      - type: stop
+        reason: "检测到体力不足，已停止脚本"
+
+  - name: "神秘符咒/公告弹窗_关闭"
+    order: 5
+    when:
+      any:
+        - { name: "btn_popup_close.png", threshold: 0.88 }
+    actions:
+      - type: click_hit
+      - type: wait
+
+  # ---------- 结算 / 领取 ----------
+  - name: "战斗结算_确认"
+    order: 10
+    cooldown: 1.2
+    when:
+      all:
+        - { name: "title_battle_result.png", threshold: 0.85 }
+        - { name: "btn_result_confirm.png", threshold: 0.85 }
+    actions:
+      - type: click_template
+        template: "btn_result_confirm.png"
+      - type: wait
+
+  - name: "掉落翻页_跳过"
+    order: 15
+    cooldown: 1.0
+    when:
+      any:
+        - { name: "btn_reward_skip.png", threshold: 0.88 }
+    actions:
+      - type: click_hit
+
+  # ---------- 战斗流程 ----------
+  - name: "战斗中_等待"
+    order: 20
+    when:
+      any:
+        - { name: "icon_in_battle.png", threshold: 0.80 }
+    actions:
+      - type: wait
+        seconds: 1.0
+
+  - name: "战斗胜利_点击屏幕继续"
+    order: 25
+    when:
+      any:
+        - { name: "title_battle_win.png", threshold: 0.85 }
+    actions:
+      - type: click_hit
+      - type: wait
+
+  # ---------- 选层 / 选阵容 ----------
+  - name: "御魂_选择副本层数"
+    order: 40
+    when:
+      any:
+        - { name: "soul_layer_10.png", threshold: 0.88 }
+    actions:
+      - type: click_hit
+      - type: wait
+
+  - name: "选择阵容_出战"
+    order: 45
+    when:
+      any:
+        - { name: "btn_team_confirm.png", threshold: 0.88 }
+    actions:
+      - type: click_hit
+      - type: wait
+
+  # ---------- 入口：开始战斗 ----------
+  - name: "开始战斗"
+    order: 50
+    cooldown: 1.5
+    when:
+      any:
+        - { name: "btn_start_battle.png", threshold: 0.88 }
+    actions:
+      - type: click_hit
+      - type: wait
+
+  # ---------- 探索副本 ----------
+  - name: "探索_选择章节"
+    order: 60
+    when:
+      any:
+        - { name: "explore_chapter_28.png", threshold: 0.88 }
+    actions:
+      - type: click_hit
+      - type: wait
+
+# ============================================================
+#  需要你提供的素材清单（放在 assets/ 目录，PNG，文件名与上面一一对应）
+#  没做完的可以先留空文件不建，脚本只会在启动时警告"素材缺失"，不会崩。
+# ============================================================
+#  btn_start_battle.png        副本界面的"开始战斗/挑战"按钮
+#  btn_result_confirm.png      战斗结算框里的"确定/领取"按钮
+#  title_battle_result.png     结算框的固定标题区域（用于和"确定"组合判断，避免误点）
+#  btn_reward_skip.png         掉落展示的"跳过"按钮
+#  title_battle_win.png        胜利结算的固定横幅
+#  icon_in_battle.png          战斗中才会出现的固定元素（如右上角自动战斗开关/回合数）
+#  btn_team_confirm.png        阵容界面的"出战/确定"按钮
+#  soul_layer_10.png           御魂第十层的入口卡片或层数标签
+#  explore_chapter_28.png      探索章节列表里的目标章节卡片
+#  btn_popup_close.png         通用弹窗右上角的关闭 X
+#  text_no_stamina.png         体力不足的提示文字区域
+#  title_buy_stamina.png       购买体力弹窗的标题

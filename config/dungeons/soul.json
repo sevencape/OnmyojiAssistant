@@ -1,0 +1,100 @@
+{
+  "id": "soul",
+  "name": "御魂",
+  "order": 10,
+  "description": "探索 → 御魂 → 八岐大蛇 → 挑战 → 准备",
+
+  "rules": [
+    {
+      "_注释": "战斗胜利画面。点一下推进结算，并记一场。",
+      "state": "战斗胜利",
+      "template": "win.png",
+      "threshold": 0.85,
+      "action": { "type": "tap" },
+      "cooldownMs": 900,
+      "isBattleEnd": true
+    },
+    {
+      "_注释": "「点击屏幕继续」提示。出现后连点两下推进（repeat=2）。",
+      "_为什么用 repeat": "这类提示一下往往推不动，连点两下更稳；两次落点各自随机，不是同一点。",
+      "state": "点击屏幕继续",
+      "template": "continue.png",
+      "threshold": 0.86,
+      "action": { "type": "tap", "repeat": 2 },
+      "cooldownMs": 1100
+    },
+    {
+      "_注释": "通关奖励面板。继续点击推进（要连点两三次）。",
+      "state": "通关奖励",
+      "template": "reward.png",
+      "threshold": 0.85,
+      "action": { "type": "tap" },
+      "cooldownMs": 900
+    },
+    {
+      "_注释": "结算界面的「通关」字样。模板小，阈值提高防误匹配。",
+      "state": "通关结算",
+      "template": "clear.png",
+      "threshold": 0.90,
+      "action": { "type": "tap" },
+      "cooldownMs": 900
+    },
+    {
+      "_注释": "阵容准备。阵容锁定后不出现，规则自然跳过。",
+      "state": "准备",
+      "template": "ready.png",
+      "threshold": 0.86,
+      "action": { "type": "tap" },
+      "cooldownMs": 1200
+    },
+    {
+      "_注释": "挑战按钮（黑字 = 可用状态）。两种外观见下面那条，各自独立匹配。",
+      "state": "挑战",
+      "template": "challenge_1.png",
+      "threshold": 0.86,
+      "action": { "type": "tap" },
+      "cooldownMs": 1500
+    },
+    {
+      "_注释": "挑战按钮（棕字 = 未选中/不可用状态）。和黑字那张是完全不同的外观，",
+      "_为什么单列一条": "两者相似度只有 0.64，合成一张模板就必须把阈值降到 0.64，会到处误匹配。各用一张更准。",
+      "state": "挑战·棕字",
+      "template": "challenge.png",
+      "threshold": 0.86,
+      "action": { "type": "tap" },
+      "cooldownMs": 1500
+    },
+    {
+      "_注释": "选择「八岐大蛇」。点在列表项上会一直匹配，靠 1.2 秒冷却让位给「挑战」。",
+      "state": "选择八岐大蛇",
+      "template": "soul_boss.png",
+      "threshold": 0.86,
+      "action": { "type": "tap" },
+      "cooldownMs": 1200
+    },
+    {
+      "_注释": "探索面板里的「展开更多副本」。",
+      "state": "展开更多副本",
+      "template": "more.png",
+      "threshold": 0.88,
+      "action": { "type": "tap" },
+      "cooldownMs": 1200
+    },
+    {
+      "_注释": "探索面板 → 御魂入口",
+      "state": "进入御魂",
+      "template": "soul.png",
+      "threshold": 0.87,
+      "action": { "type": "tap" },
+      "cooldownMs": 1200
+    },
+    {
+      "_注释": "庭院主界面的探索入口。放最后，避免抢占上面的规则。",
+      "state": "进入探索",
+      "template": "explore.png",
+      "threshold": 0.88,
+      "action": { "type": "tap" },
+      "cooldownMs": 1500
+    }
+  ]
+}

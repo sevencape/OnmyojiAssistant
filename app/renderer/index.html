@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'none'; script-src 'self'; style-src 'self'; img-src 'self' data:;" />
+  <title>阴阳师助手</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <!-- 自定义标题栏（窗口是无边框的） -->
+  <header class="titlebar">
+    <div class="titlebar-drag">
+      <span class="brand">阴阳师助手</span>
+      <span class="badge" id="engineBadge">就绪</span>
+    </div>
+    <div class="titlebar-actions">
+      <button class="icon-btn" id="btnPin" title="置顶">📌</button>
+      <button class="icon-btn" id="btnMin" title="最小化">—</button>
+      <button class="icon-btn danger" id="btnClose" title="退出">✕</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- 游戏实例 -->
+    <section class="card">
+      <div class="card-head">
+        <h2>游戏实例</h2>
+        <div class="head-actions">
+          <label class="switch" title="自动刷新窗口列表">
+            <input type="checkbox" id="autoRefresh" checked />
+            <span>自动</span>
+          </label>
+          <button class="btn small" id="btnRefresh">刷新</button>
+        </div>
+      </div>
+      <div class="list" id="instanceList">
+        <div class="empty">正在检测游戏窗口…</div>
+      </div>
+      <div class="hint" id="detectHint"></div>
+    </section>
+
+    <!-- 参数：只保留三项常用的，其余收进开发者选项 -->
+    <section class="card">
+      <div class="card-head">
+        <h2>运行参数</h2>
+      </div>
+
+      <div class="field">
+        <label for="dungeonType">副本类型</label>
+        <select id="dungeonType">
+          <option value="">正在读取配置…</option>
+        </select>
+        <span class="sub" id="dungeonHint">副本类型由 config/dungeons/ 里的 json 决定</span>
+      </div>
+
+      <div class="grid2">
+        <div class="field">
+          <label for="maxBattles">最大场次</label>
+          <input type="number" id="maxBattles" min="0" value="0" />
+          <span class="sub">0 = 不限</span>
+        </div>
+        <div class="field">
+          <label for="maxMinutes">最长时长(分)</label>
+          <input type="number" id="maxMinutes" min="0" value="0" />
+          <span class="sub">0 = 不限</span>
+        </div>
+      </div>
+
+      <!-- 开发者选项（可折叠） -->
+      <details class="devopts" id="devOpts">
+        <summary>开发者选项</summary>
+
+        <div class="devopts-body">
+          <div class="field hidden" id="fieldSoulLayer">
+            <label for="soulLayer">御魂层数</label>
+            <select id="soulLayer">
+              <option value="1">一层</option>
+              <option value="2">二层</option>
+              <option value="3">三层</option>
+              <option value="4">四层</option>
+              <option value="5">五层</option>
+              <option value="6">六层</option>
+              <option value="7">七层</option>
+              <option value="8">八层</option>
+              <option value="9">九层</option>
+              <option value="10" selected>十层</option>
+              <option value="11">十一层（悲鸣）</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="teamIndex">阵容序号</label>
+            <select id="teamIndex">
+              <option value="0" selected>默认阵容</option>
+              <option value="1">阵容 1</option>
+              <option value="2">阵容 2</option>
+              <option value="3">阵容 3</option>
+            </select>
+          </div>
+
+          <div class="grid2">
+            <div class="field">
+              <label for="actionInterval">最短间隔(秒)</label>
+              <input type="number" id="actionInterval" min="0.2" max="30" step="0.1" value="0.6" />
+            </div>
+            <div class="field">
+              <label for="actionIntervalMax">最长间隔(秒)</label>
+              <input type="number" id="actionIntervalMax" min="0" max="60" step="0.1" value="1.5" />
+            </div>
+          </div>
+          <span class="sub" id="actionIntervalValue">每轮在 0.6–1.5 秒之间随机</span>
+
+          <div class="grid2">
+            <div class="field">
+              <label for="triggerChance">触发概率(%)</label>
+              <input type="number" id="triggerChance" min="1" max="100" step="5" value="100" />
+              <span class="sub">命中后按此概率才点击</span>
+            </div>
+            <div class="field">
+              <label for="clickJitter">点击抖动(%)</label>
+              <input type="number" id="clickJitter" min="0" max="90" step="5" value="35" />
+              <span class="sub">在按钮内随机取点</span>
+            </div>
+          </div>
+
+          <div class="row">
+            <label class="switch">
+              <input type="checkbox" id="dryRun" />
+              <span>仅识别不点击</span>
+            </label>
+          </div>
+
+          <div class="row data-row">
+            <button class="btn small ghost" id="btnDiagnose">素材诊断（看哪个素材匹配不上）</button>
+          </div>
+
+          <div class="row data-row">
+            <button class="btn small ghost" id="btnTestClick">测试点击（鼠标当前位置）</button>
+          </div>
+
+          <div class="row data-row">
+            <button class="btn small ghost" id="btnOpenData">打开数据目录</button>
+            <span class="hint hint-inline" id="dataDirHint"></span>
+          </div>
+        </div>
+      </details>
+    </section>
+
+    <!-- 控制 -->
+    <section class="card">
+      <div class="controls">
+        <button class="btn primary" id="btnStart">开始</button>
+        <button class="btn danger" id="btnStop" disabled>结束</button>
+      </div>
+      <div class="stats" id="stats">
+        <div class="stat"><span class="stat-label">运行中</span><span class="stat-value" id="statRunning">0</span></div>
+        <div class="stat"><span class="stat-label">累计动作</span><span class="stat-value" id="statActions">0</span></div>
+        <div class="stat"><span class="stat-label">已完成场次</span><span class="stat-value" id="statBattles">0</span></div>
+      </div>
+    </section>
+
+    <!-- 日志 -->
+    <section class="card grow">
+      <div class="card-head">
+        <h2>运行日志</h2>
+        <button class="btn small" id="btnClearLog">清空</button>
+      </div>
+      <div class="log" id="log"></div>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,9 @@
+# Python 3.11 / 3.12（3.13+ 部分库轮子不全，不建议）
+numpy>=1.26,<3
+opencv-python>=4.9
+mss>=9.0
+Pillow>=10.0
+pywin32>=306          # 仅 Windows：窗口查找 / 窗口矩形 / DPI 感知
+PyYAML>=6.0
+pydirectinput>=1.0.4  # 软件注入点击（风险提示见 README）
+keyboard>=0.13.5      # 全局热键（可选，用于随时急停）

@@ -1,0 +1,76 @@
+{
+  "name": "onmyoji-assistant",
+  "productName": "OnmyojiAssistant",
+  "version": "0.1.0",
+  "description": "阴阳师多开自动化助手 - 贴边停靠式控制面板",
+  "main": "main.js",
+  "author": "local",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "start": "electron .",
+    "selfcheck": "electron . --self-check",
+    "probe": "electron probe.js",
+    "calibrate": "node calibrate.js",
+    "test:vision": "node test-vision.js",
+    "test:integration": "node test-integration.js",
+    "test:calibration": "node test-calibration.js",
+    "test:rules": "node test-rules.js",
+    "test:multi": "node test-multi-instance.js",
+    "test:real": "node test-real-screen.js",
+    "test:renderer": "electron test-renderer.js",
+    "test": "node test-vision.js && node test-integration.js && node test-calibration.js && node test-paths.js && node test-capture.js && node test-dungeons.js && node test-rules.js",
+    "test:all": "npm run test && npm run test:multi && npm run test:real",
+    "accept": "electron acceptance.js",
+    "build": "powershell -ExecutionPolicy Bypass -File build.ps1",
+    "pack": "node pack-manual.js",
+    "dist": "electron-builder --win --x64 --dir",
+    "dist:portable": "electron-builder --win --x64 portable",
+    "test:paths": "node test-paths.js",
+    "test:capture": "node test-capture.js",
+    "test:dungeons": "node test-dungeons.js"
+  },
+  "allowScripts": {
+    "@electron/get": true,
+    "electron": true
+  },
+  "dependencies": {
+    "koffi": "^2.9.0",
+    "pngjs": "^7.0.0"
+  },
+  "devDependencies": {
+    "electron": "^40.0.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "local.onmyoji.assistant",
+    "productName": "OnmyojiAssistant",
+    "directories": {
+      "output": "../dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**/*",
+      "lib/**/*",
+      "assets/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        "dir"
+      ],
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "requestedExecutionLevel": "requireAdministrator"
+    },
+    "compression": "normal",
+    "npmRebuild": false,
+    "extraFiles": [
+      {
+        "from": "../config",
+        "to": "config"
+      }
+    ]
+  }
+}

@@ -1,0 +1,67 @@
+{
+  "id": "common",
+  "name": "通用副本",
+  "order": 90,
+  "description": "已在副本页时用：挑战 → 准备 → 结算（不做探索/入口点击）",
+
+  "rules": [
+    {
+      "_注释": "战斗胜利画面。点一下推进结算，并记一场。",
+      "state": "战斗胜利",
+      "template": "win.png",
+      "threshold": 0.85,
+      "action": { "type": "tap" },
+      "cooldownMs": 900,
+      "isBattleEnd": true
+    },
+    {
+      "_注释": "「点击屏幕继续」提示。出现后连点两下推进（repeat=2）。",
+      "_为什么用 repeat": "这类提示一下往往推不动，连点两下更稳；两次落点各自随机，不是同一点。",
+      "state": "点击屏幕继续",
+      "template": "continue.png",
+      "threshold": 0.86,
+      "action": { "type": "tap", "repeat": 2 },
+      "cooldownMs": 1100
+    },
+    {
+      "_注释": "通关奖励面板。继续点击推进（要连点两三次）。",
+      "state": "通关奖励",
+      "template": "reward.png",
+      "threshold": 0.85,
+      "action": { "type": "tap" },
+      "cooldownMs": 900
+    },
+    {
+      "_注释": "结算界面的「通关」字样。模板小，阈值提高防误匹配。",
+      "state": "通关结算",
+      "template": "clear.png",
+      "threshold": 0.90,
+      "action": { "type": "tap" },
+      "cooldownMs": 900
+    },
+    {
+      "_注释": "阵容准备。阵容锁定后不出现，规则自然跳过。",
+      "state": "准备",
+      "template": "ready.png",
+      "threshold": 0.86,
+      "action": { "type": "tap" },
+      "cooldownMs": 1200
+    },
+    {
+      "_注释": "挑战按钮（黑字 = 可用状态）。",
+      "state": "挑战",
+      "template": "challenge_1.png",
+      "threshold": 0.86,
+      "action": { "type": "tap" },
+      "cooldownMs": 1500
+    },
+    {
+      "_注释": "挑战按钮（棕字 = 未选中/不可用状态）。和黑字那张外观差异很大，各用一张模板。",
+      "state": "挑战·棕字",
+      "template": "challenge.png",
+      "threshold": 0.86,
+      "action": { "type": "tap" },
+      "cooldownMs": 1500
+    }
+  ]
+}
